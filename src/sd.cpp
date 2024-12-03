@@ -7,7 +7,7 @@ void Sd::ajouterEntreeCSV(const char* pseudo, float temps) {
     Serial.println("Fichier leaderboard.csv introuvable. Création...");
     File fichier = SD.open("/leaderboard.csv", FILE_WRITE);
     if (fichier) {
-      fichier.println("Pseudo,Temps");
+      // fichier.println("Pseudo,Temps");
       fichier.close();
       Serial.println("Fichier créé avec succès.");
     } else {
@@ -64,7 +64,7 @@ void Sd::Setup() {
   }
   Serial.println("Carte SD initialisée avec succès.");
 
-  ajouterEntreeCSV("Player1", 123.45);
-  ajouterEntreeCSV("Player2", 110.32);
-  ajouterEntreeCSV("Player3", 102.00);
+  // ajouterEntreeCSV("Player1", 123.45);
+  // ajouterEntreeCSV("Player2", 110.32);
+  // ajouterEntreeCSV("Player3", 102.00);
 }

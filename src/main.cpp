@@ -7,12 +7,14 @@
 #include "utils.hpp"
 
 EspNow espNow;
-Sd sd;
+// Sd sd;
+
+bool test = true;
 
 void setup() {
   Serial.begin(115200);
-  espNow.Setup();
   sd.Setup();
+  espNow.Setup();
 }
 
 void loop() {
@@ -20,6 +22,14 @@ void loop() {
   server.handleClient();           // Gérer les requêtes HTTP
 
   // Serial.println("Début de la boucle principale.");
+
+  if (test) {
+    test = false;
+    portal.ajouterTempsEnAttente(13.32);
+    portal.ajouterTempsEnAttente(15.85);
+    portal.ajouterTempsEnAttente(16.00);
+    portal.ajouterTempsEnAttente(9.87);
+  }
 
   // // Affichage des informations
   // if (isMaster) {

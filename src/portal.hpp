@@ -7,9 +7,11 @@
 #include <WebServer.h>
 
 #include "utils.hpp"
+#include "sd.hpp"
 
 extern WebServer server;  // Serveur web sur le port 80
 extern DNSServer dnsServer;   // Serveur DNS
+extern Sd sd;
 
 class Portal {
  public:
@@ -17,6 +19,7 @@ class Portal {
 
   void Setup();
   static void afficherLeaderboard();
+  void ajouterTempsEnAttente(float temps);
 };
 
 #endif  // Portal_HPP
