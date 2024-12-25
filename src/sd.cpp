@@ -1,5 +1,7 @@
 #include "sd.hpp"
 
+#include <vector>
+
 void Sd::ajouterEntreeCSV(const char* pseudo, float temps) {
   // Vérifier si le fichier existe
   if (!SD.exists("/leaderboard.csv")) {
@@ -54,6 +56,48 @@ void Sd::ajouterEntreeCSV(const char* pseudo, float temps) {
     Serial.println("Entrée ajoutée avec succès !");
   } else {
     Serial.println("Erreur : impossible d'écrire dans le fichier.");
+  }
+}
+
+void Sd::trierLeaderboard() {
+  File file = SD.open("/leaderboard.csv", FILE_READ);
+
+  if (!file) {
+    Serial.println("Erreur : fichier leaderboard.csv introuvable !");
+    return;
+  }
+
+  // Lire toutes les lignes et stocker les données
+  std::vector<std::pair<String, float>> leaderboardData;
+
+  while (file.available()) {
+    String line = file.readStringUntil('\n');
+    int separatorIndex = line.indexOf(',');
+
+    if (separatorIndex != -1) {
+      String pseudo = line.substring(0, separatorIndex);
+      float time = line.substring(separatorIndex + 1).toFloat();
+      leaderboardData.push_back({pseudo, time});
+    }
+  }
+
+  file.close();
+
+  // Trier par temps (du plus petit au plus grand)
+  std::sort(leaderboardData.begin(), leaderboardData.end(),
+            [](const std::pair<String, float>& a, const std::pair<String, float>& b) {
+              return a.second < b.second;  // Trie par le temps
+            });
+
+  // Réécrire le fichier CSV trié
+  file = SD.open("/leaderboard.csv", FILE_WRITE);
+
+  if (file) {
+    for (const auto& entry : leaderboardData) { file.println(entry.first + "," + String(entry.second, 2)); }
+    file.close();
+    Serial.println("Leaderboard trié et réécrit avec succès !");
+  } else {
+    Serial.println("Erreur : impossible de réécrire leaderboard.csv");
   }
 }
 

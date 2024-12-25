@@ -6,20 +6,33 @@
 #include <SD.h>
 #include <WebServer.h>
 
-#include "utils.hpp"
-#include "sd.hpp"
+#include <queue>
 
-extern WebServer server;  // Serveur web sur le port 80
-extern DNSServer dnsServer;   // Serveur DNS
-extern Sd sd;
+#include "sd.hpp"
+#include "utils.hpp"
+
+// Déclarations des objets externes
+extern WebServer server;     // Serveur web sur le port 80
+extern DNSServer dnsServer;  // Serveur DNS
+extern Sd sd;                // Gestionnaire de carte SD
 
 class Portal {
  public:
-  Portal() {};
+  Portal();
 
   void Setup();
-  static void afficherLeaderboard();
   void ajouterTempsEnAttente(float temps);
+
+ private:
+  static std::queue<String> pendingQueue;  // File d'attente statique
+
+  // Méthodes de gestion des routes (doivent être statiques pour fonctionner avec `server.on`)
+  static void afficherPageIndex();
+  static void servirFichierCSS();
+  static void servirFichierJS();
+  static void servirFichierCSV();
+  static void gererPending();
+  static void soumettrePseudo();
 };
 
 #endif  // Portal_HPP
