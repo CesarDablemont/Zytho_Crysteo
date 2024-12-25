@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <cstdint>
 
+#include "debugger.hpp"
+
 // ----------------------------------------------------------------------
 // Communication ESP
 #define MESSAGE_QUEUE_SIZE 10

@@ -13,13 +13,12 @@ Portal::Portal() {}
 void listerFichiersSD() {
   File root = SD.open("/");
   if (!root) {
-    Serial.println("Erreur : Impossible d'ouvrir le répertoire racine.");
+    DEBUG_ERROR("Erreur : Impossible d'ouvrir le répertoire racine.");
     return;
   }
   File fichier = root.openNextFile();
   while (fichier) {
-    Serial.print("Fichier trouvé : ");
-    Serial.println(fichier.name());
+    DEBUG_PORTAL("Fichier trouvé : %s", fichier.name());
     fichier = root.openNextFile();
   }
 }
@@ -27,16 +26,15 @@ void listerFichiersSD() {
 void Portal::Setup() {
   // Initialisation du WiFi
   IPAddress apIP = WiFi.softAPIP();
-  Serial.println("Point d'accès WiFi créé !");
-  Serial.print("Adresse IP : ");
-  Serial.println(apIP);
+  DEBUG_INFO("Point d'accès WiFi créé !");
+  DEBUG_INFO("Adresse IP : %s", apIP.toString().c_str());
 
   // Initialisation de la carte SD
   if (!SD.begin()) {
-    Serial.println("Erreur : la carte SD n'a pas pu être initialisée !");
+    DEBUG_ERROR("Erreur : la carte SD n'a pas pu être initialisée !");
     return;
   }
-  Serial.println("Carte SD initialisée avec succès.");
+  DEBUG_SD("Carte SD initialisée avec succès.");
   listerFichiersSD();  // Vérifie les fichiers disponibles sur la SD
 
   // Configuration DNS
@@ -44,7 +42,7 @@ void Portal::Setup() {
 
   // Routes HTTP
   server.on("/", [this]() {
-    Serial.println("Requête reçue pour /");
+    DEBUG_PORTAL("Requête reçue pour /");
     this->afficherPageIndex();
   });
 
@@ -60,7 +58,7 @@ void Portal::Setup() {
   //   Serial.println("(rediriger vers \"/\"");
   // });
   server.on("/hotspot-detect.html", []() {
-    Serial.println("Requête traitée pour /hotspot-detect.html");
+    DEBUG_PORTAL("Requête traitée pour /hotspot-detect.html");
     server.sendHeader("Location", "/", true);  // Redirection vers "/"
     server.send(302, "text/plain", "Redirection vers la page principale");
   });
@@ -69,8 +67,7 @@ void Portal::Setup() {
   // server.onNotFound([]() { server.send(404, "text/plain", "Fichier non trouvé"); });
   server.onNotFound([]() {
     String uri = server.uri();
-    Serial.print("Requête non gérée pour : ");
-    Serial.println(uri);
+    DEBUG_PORTAL("Requête non gérée pour : %s", uri.c_str());
 
     // Réponse par défaut pour captives portals ou requêtes inconnues
     // if (uri == "/hotspot-detect.html" || uri == "/generate_204") {
@@ -94,16 +91,16 @@ void Portal::Setup() {
 
       server.streamFile(fichier, contentType);
       fichier.close();
-      Serial.println("Fichier servi avec succès : " + uri);
+      DEBUG_PORTAL("Fichier servi avec succès : %s", uri.c_str());
     } else {
       server.send(404, "text/plain", "Erreur : fichier non trouvé !");
-      Serial.println("Erreur : fichier introuvable sur la SD pour : " + uri);
+      DEBUG_ERROR("Erreur : fichier introuvable sur la SD pour : %s", uri.c_str());
     }
   });
 
   // Démarrer le serveur
   server.begin();
-  Serial.println("Serveur web démarré.");
+  DEBUG_INFO("Serveur web démarré.");
 }
 
 // Ajout d'un temps en attente
@@ -134,16 +131,16 @@ void Portal::afficherPageIndex() {
 //   fichier.close();
 // }
 void Portal::servirFichierCSS() {
-  Serial.println("Requête pour /style.css reçue.");
+  DEBUG_PORTAL("Requête pour /style.css reçue.");
   File fichier = SD.open("/style.css");
   if (!fichier) {
-    Serial.println("Erreur : fichier style.css non trouvé !");
+    DEBUG_ERROR("Erreur : fichier style.css non trouvé !");
     server.send(500, "text/plain", "Erreur : fichier style.css non trouvé !");
     return;
   }
   server.streamFile(fichier, "text/css");
   fichier.close();
-  Serial.println("Fichier style.css servi avec succès.");
+  DEBUG_PORTAL("Fichier style.css servi avec succès.");
 }
 
 // Route : servir le JS
@@ -209,9 +206,9 @@ void Portal::ignorerTemps() {
   if (!pendingQueue.empty()) {
     pendingQueue.pop();  // Retirer le premier temps de la file d'attente
     server.send(200, "application/json", "{\"message\": \"Temps ignoré avec succès\"}");
-    Serial.println("Temps en attente ignoré avec succès.");
+    DEBUG_PORTAL("Temps en attente ignoré avec succès.");
   } else {
     server.send(400, "application/json", "{\"message\": \"Aucun temps en attente à ignorer\"}");
-    Serial.println("Aucun temps en attente à ignorer.");
+    DEBUG_PORTAL("Aucun temps en attente à ignorer.");
   }
 }

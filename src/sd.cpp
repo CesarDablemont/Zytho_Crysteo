@@ -6,14 +6,14 @@ void Sd::ajouterEntreeCSV(const char* pseudo, float temps) {
   // Vérifier si le fichier existe
   if (!SD.exists("/leaderboard.csv")) {
     // Si le fichier n'existe pas, le créer avec les en-têtes
-    Serial.println("Fichier leaderboard.csv introuvable. Création...");
+    DEBUG_WARN("Fichier leaderboard.csv introuvable. Création...");
     File fichier = SD.open("/leaderboard.csv", FILE_WRITE);
     if (fichier) {
       // fichier.println("Pseudo,Temps");
       fichier.close();
-      Serial.println("Fichier créé avec succès.");
+      DEBUG_SD("Fichier créé avec succès.");
     } else {
-      Serial.println("Erreur : impossible de créer le fichier leaderboard.csv.");
+      DEBUG_ERROR("Erreur : impossible de créer le fichier leaderboard.csv.");
       return;
     }
   }
@@ -40,11 +40,11 @@ void Sd::ajouterEntreeCSV(const char* pseudo, float temps) {
     fichier.close();
 
     if (existeDeja) {
-      Serial.println("Erreur : l'entrée avec ce pseudo et ce temps existe déjà.");
+      DEBUG_ERROR("Erreur : l'entrée avec ce pseudo et ce temps existe déjà.");
       return;
     }
   } else {
-    Serial.println("Erreur : impossible de lire le fichier.");
+    DEBUG_ERROR("Erreur : impossible de lire le fichier.");
     return;
   }
 
@@ -53,9 +53,9 @@ void Sd::ajouterEntreeCSV(const char* pseudo, float temps) {
   if (fichier) {
     fichier.printf("%s,%.2f\n", pseudo, temps);
     fichier.close();
-    Serial.println("Entrée ajoutée avec succès !");
+    DEBUG_SD("Entrée ajoutée avec succès !");
   } else {
-    Serial.println("Erreur : impossible d'écrire dans le fichier.");
+    DEBUG_ERROR("Erreur : impossible d'écrire dans le fichier.");
   }
 }
 
@@ -95,20 +95,16 @@ void Sd::trierLeaderboard() {
   if (file) {
     for (const auto& entry : leaderboardData) { file.println(entry.first + "," + String(entry.second, 2)); }
     file.close();
-    Serial.println("Leaderboard trié et réécrit avec succès !");
+    DEBUG_SD("Leaderboard trié et réécrit avec succès !");
   } else {
-    Serial.println("Erreur : impossible de réécrire leaderboard.csv");
+    DEBUG_ERROR("Erreur : impossible de réécrire leaderboard.csv");
   }
 }
 
 void Sd::Setup() {
   if (!SD.begin(CS_PIN)) {
-    Serial.println("Erreur : carte SD introuvable !");
+    DEBUG_ERROR("Erreur : carte SD introuvable !");
     return;
   }
-  Serial.println("Carte SD initialisée avec succès.");
-
-  // ajouterEntreeCSV("Player1", 123.45);
-  // ajouterEntreeCSV("Player2", 110.32);
-  // ajouterEntreeCSV("Player3", 102.00);
+  DEBUG_INFO("Carte SD initialisée avec succès.");
 }

@@ -8,7 +8,7 @@ Portal portal;
 void EspNow::onReceive(const uint8_t* mac, const uint8_t* incomingData, int len) {
   if (instance == nullptr) return;  // Vérification de l'instance
   if (len != sizeof(DiscoveryMessage)) {
-    Serial.println("Message reçu avec une taille incorrecte !");
+    DEBUG_ERROR("Message reçu avec une taille incorrecte !");
     return;
   }
 
@@ -16,9 +16,9 @@ void EspNow::onReceive(const uint8_t* mac, const uint8_t* incomingData, int len)
   memcpy(&receivedMessage, incomingData, len);
 
   if (xQueueSend(instance->messageQueue, &receivedMessage, 0) == pdTRUE) {
-    Serial.println("Message reçu et ajouté à la file de tâches.");
+    DEBUG_INFO("Message reçu et ajouté à la file de tâches.");
   } else {
-    Serial.println("File de tâches pleine. Message ignoré.");
+    DEBUG_WARN("File de tâches pleine. Message ignoré.");
   }
 }
 
@@ -31,9 +31,9 @@ void EspNow::sendDiscovery(const char* role) {
   const uint8_t broadcastAddress[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t*)&message, sizeof(message));
   if (result == ESP_OK) {
-    Serial.printf("Message %s envoyé avec succès !\n", role);
+    DEBUG_INFO("Message %s envoyé avec succès !\n", role);
   } else {
-    Serial.printf("Erreur d'envoi du message %s : %d\n", role, result);
+    DEBUG_ERROR("Erreur d'envoi du message %s : %d\n", role, result);
   }
 }
 
@@ -41,14 +41,16 @@ void EspNow::addSlave(const uint8_t* mac) {
   if (slaveCount < MAX_SLAVES) {
     memcpy(slaveMacAddresses[slaveCount], mac, 6);
     slaveCount++;
-    Serial.print("Slave ajouté : ");
+#if DEBUG_LEVEL >= DEBUG_LEVEL_INFO
+    Serial.print("[DEBUG] [INFO] Slave ajouté : ");
     for (int i = 0; i < 6; i++) {
       Serial.printf("%02X", mac[i]);
       if (i < 5) Serial.print(":");
     }
     Serial.println();
+#endif
   } else {
-    Serial.println("Liste des Slaves pleine.");
+    DEBUG_ERROR("Liste des Slaves pleine.");
   }
 }
 
@@ -58,20 +60,22 @@ void EspNow::processMessages(void* parameter) {
 
   while (true) {
     if (xQueueReceive(instance->messageQueue, &receivedMessage, portMAX_DELAY) == pdTRUE) {
-      Serial.println("--- Message reçu ---");
+      DEBUG_INFO("--- Message reçu ---");
+#if DEBUG_LEVEL >= DEBUG_LEVEL_INFO
       Serial.print("Adresse MAC de l'expéditeur : ");
       for (int i = 0; i < 6; i++) {
         Serial.printf("%02X", receivedMessage.macAddr[i]);
         if (i < 5) Serial.print(":");
       }
       Serial.println();
-      Serial.printf("Rôle : %s\n", receivedMessage.role);
+#endif
+      DEBUG_INFO("Rôle : %s\n", receivedMessage.role);
 
       if (strcmp(receivedMessage.role, "SEARCHING") == 0 && isMaster) {
-        Serial.println("Un nouvel ESP m'a trouvé. Je réponds en tant que MASTER.");
+        DEBUG_INFO("Un nouvel ESP m'a trouvé. Je réponds en tant que MASTER.");
         instance->sendDiscovery("MASTER");
       } else if (strcmp(receivedMessage.role, "MASTER") == 0 && !roleLocked) {
-        Serial.println("MASTER détecté. Je deviens SLAVE.");
+        DEBUG_INFO("MASTER détecté. Je deviens SLAVE.");
         isMaster = false;
         roleLocked = true;
         memcpy(instance->masterMacAddress, receivedMessage.macAddr, 6);
@@ -87,13 +91,13 @@ void EspNow::Setup() {
   instance = this;  // Enregistrement de l'instance
 
   WiFi.mode(WIFI_AP_STA);  // AP (acces point) pour le serveur + STA (sation) esp-Now
-  Serial.println("WiFi initialisé en mode station.");
+  DEBUG_INFO("WiFi initialisé en mode station.");
 
   if (esp_now_init() != ESP_OK) {
-    Serial.println("Erreur lors de l'initialisation d'ESP-NOW.");
+    DEBUG_ERROR("Erreur lors de l'initialisation d'ESP-NOW.");
     return;
   }
-  Serial.println("ESP-NOW initialisé avec succès.");
+  DEBUG_INFO("ESP-NOW initialisé avec succès.");
 
   esp_now_register_recv_cb(onReceive);
 
@@ -103,13 +107,13 @@ void EspNow::Setup() {
   peerInfo.channel = 0;
   peerInfo.encrypt = false;
   if (esp_now_add_peer(&peerInfo) != ESP_OK) {
-    Serial.println("Erreur lors de l'ajout du pair pour la diffusion.");
+    DEBUG_ERROR("Erreur lors de l'ajout du pair pour la diffusion.");
     return;
   }
 
   messageQueue = xQueueCreate(MESSAGE_QUEUE_SIZE, sizeof(DiscoveryMessage));
   if (messageQueue == NULL) {
-    Serial.println("Erreur : Impossible de créer la file de tâches.");
+    DEBUG_ERROR("Erreur : Impossible de créer la file de tâches.");
     return;
   }
 
@@ -124,7 +128,7 @@ void EspNow::Setup() {
   }
 
   if (!roleLocked) {
-    Serial.println("Aucun autre ESP détecté. Je deviens MASTER.");
+    DEBUG_INFO("Aucun autre ESP détecté. Je deviens MASTER.");
     isMaster = true;
     roleLocked = true;
     sendDiscovery("MASTER");
