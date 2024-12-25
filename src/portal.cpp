@@ -53,6 +53,7 @@ void Portal::Setup() {
   server.on("/leaderboard.csv", Portal::servirFichierCSV);
   server.on("/pending", Portal::gererPending);
   server.on("/submit", Portal::soumettrePseudo);
+  server.on("/ignore-time", Portal::ignorerTemps);
   // server.on("/hotspot-detect.html", []() {
   //   server.send(200, "text/html", "<html><head><title>Captive Portal</title></head><body>Connexion réussie</body></html>");
   //   Serial.println("Requête traitée pour /hotspot-detect.html");
@@ -200,5 +201,17 @@ void Portal::soumettrePseudo() {
     server.send(302, "text/plain", "Redirection vers le leaderboard");
   } else {
     server.send(400, "text/plain", "Pseudo manquant ou pas de temps en attente");
+  }
+}
+
+// Route : ignorer le temps en attente
+void Portal::ignorerTemps() {
+  if (!pendingQueue.empty()) {
+    pendingQueue.pop();  // Retirer le premier temps de la file d'attente
+    server.send(200, "application/json", "{\"message\": \"Temps ignoré avec succès\"}");
+    Serial.println("Temps en attente ignoré avec succès.");
+  } else {
+    server.send(400, "application/json", "{\"message\": \"Aucun temps en attente à ignorer\"}");
+    Serial.println("Aucun temps en attente à ignorer.");
   }
 }

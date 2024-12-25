@@ -33,6 +33,7 @@ class Portal {
   static void servirFichierCSV();
   static void gererPending();
   static void soumettrePseudo();
+  static void ignorerTemps();
 };
 
 #endif  // Portal_HPP

@@ -39,6 +39,24 @@ async function loadLeaderboard() {
   }
 }
 
+// Ignorer un temps invalide
+async function ignoreTime() {
+  try {
+    const response = await fetch('/ignore-time', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const result = await response.json();
+    console.log(result.message);
+    document.getElementById('popup').classList.remove('active'); // Cache la popup
+    loadLeaderboard(); // Recharge le leaderboard
+  } catch (error) {
+    console.error("Erreur lors de l'ignorance du temps :", error);
+  }
+}
+
 // Initialisation
 window.onload = () => {
   loadLeaderboard(); // Charger les données au chargement
@@ -46,4 +64,7 @@ window.onload = () => {
 
   // Vérifier les temps en attente toutes les 5 secondes
   setInterval(checkPending, 5000);
+
+  // Bouton Ignorer
+  document.getElementById('ignore-button').addEventListener('click', ignoreTime);
 };

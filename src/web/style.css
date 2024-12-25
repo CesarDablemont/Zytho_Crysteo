@@ -54,3 +54,31 @@ form {
   text-align: center;
   color: #333;
 }
+
+#valid-button {
+  background-color: #4f66d9;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#valid-button:hover {
+  background-color: #2c31c9;
+}
+
+#ignore-button {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#ignore-button:hover {
+  background-color: #c9302c;
+}
