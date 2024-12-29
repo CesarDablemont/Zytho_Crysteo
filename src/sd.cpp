@@ -51,7 +51,7 @@ void Sd::ajouterEntreeCSV(const char* pseudo, float temps) {
   // Ajouter l'entrée si elle n'existe pas encore
   fichier = SD.open("/leaderboard.csv", FILE_APPEND);
   if (fichier) {
-    fichier.printf("%s,%.2f\n", pseudo, temps);
+    fichier.printf("%s,%.3f\n", pseudo, temps);
     fichier.close();
     DEBUG_SD("Entrée ajoutée avec succès !");
   } else {
@@ -93,7 +93,7 @@ void Sd::trierLeaderboard() {
   file = SD.open("/leaderboard.csv", FILE_WRITE);
 
   if (file) {
-    for (const auto& entry : leaderboardData) { file.println(entry.first + "," + String(entry.second, 2)); }
+    for (const auto& entry : leaderboardData) { file.println(entry.first + "," + String(entry.second, 3)); }
     file.close();
     DEBUG_SD("Leaderboard trié et réécrit avec succès !");
   } else {

@@ -30,15 +30,16 @@ void Portal::Setup() {
   DEBUG_INFO("Adresse IP : %s", apIP.toString().c_str());
 
   // Initialisation de la carte SD
-  if (!SD.begin()) {
-    DEBUG_ERROR("Erreur : la carte SD n'a pas pu être initialisée !");
-    return;
-  }
-  DEBUG_SD("Carte SD initialisée avec succès.");
+  sd.Setup();
   listerFichiersSD();  // Vérifie les fichiers disponibles sur la SD
 
   // Configuration DNS
   dnsServer.start(DNS_PORT, "*", apIP);
+  if (MDNS.begin(DNS_NAME)) {
+    DEBUG_INFO("mDNS démarré : http://%s.local/", DNS_NAME);
+  } else {
+    DEBUG_ERROR("Erreur : mDNS non démarré.");
+  }
 
   // Routes HTTP
   server.on("/", [this]() {
@@ -64,19 +65,10 @@ void Portal::Setup() {
   });
 
   // Gestion des erreurs 404
-  // server.onNotFound([]() { server.send(404, "text/plain", "Fichier non trouvé"); });
   server.onNotFound([]() {
     String uri = server.uri();
     DEBUG_PORTAL("Requête non gérée pour : %s", uri.c_str());
 
-    // Réponse par défaut pour captives portals ou requêtes inconnues
-    // if (uri == "/hotspot-detect.html" || uri == "/generate_204") {
-    //   server.send(200, "text/html", "<html><head><title>Captive Portal</title></head><body>Connexion réussie</body></html>");
-    //   Serial.println("Requête traitée pour captive portal.");
-    //   return;
-    // }
-
-    // Recherche du fichier correspondant
     File fichier = SD.open(uri);
     if (fichier) {
       String contentType = "text/plain";
@@ -93,8 +85,9 @@ void Portal::Setup() {
       fichier.close();
       DEBUG_PORTAL("Fichier servi avec succès : %s", uri.c_str());
     } else {
-      server.send(404, "text/plain", "Erreur : fichier non trouvé !");
       DEBUG_ERROR("Erreur : fichier introuvable sur la SD pour : %s", uri.c_str());
+      server.sendHeader("Location", "/", true);  // Redirection vers "/"
+      server.send(302, "text/plain", "Redirection vers la page principale");
     }
   });
 
@@ -105,7 +98,7 @@ void Portal::Setup() {
 
 // Ajout d'un temps en attente
 void Portal::ajouterTempsEnAttente(float temps) {
-  String tempsStr = String(temps, 2);
+  String tempsStr = String(temps, 3);
   pendingQueue.push(tempsStr);
 }
 

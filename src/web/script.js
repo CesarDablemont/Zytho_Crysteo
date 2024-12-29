@@ -6,10 +6,10 @@ async function checkPending() {
     const popup = document.getElementById('popup');
 
     if (data.status === 'pending') {
-      popup.classList.add('active'); // Affiche la popup
+      popup.classList.add('active');
       document.getElementById('time').textContent = data.time;
     } else {
-      popup.classList.remove('active'); // Cache la popup
+      popup.classList.remove('active');
     }
   } catch (error) {
     console.error('Erreur lors de la vérification des temps en attente :', error);
@@ -24,7 +24,7 @@ async function loadLeaderboard() {
     const rows = csvText.split('\n').filter(row => row.trim() !== '');
 
     const tbody = document.getElementById('leaderboard');
-    tbody.innerHTML = ''; // Réinitialise le tableau
+    tbody.innerHTML = '';
 
     rows.forEach(row => {
       const [pseudo, time] = row.split(',');
@@ -50,21 +50,33 @@ async function ignoreTime() {
     });
     const result = await response.json();
     console.log(result.message);
-    document.getElementById('popup').classList.remove('active'); // Cache la popup
-    loadLeaderboard(); // Recharge le leaderboard
+    document.getElementById('popup').classList.remove('active');
+    loadLeaderboard();
   } catch (error) {
     console.error("Erreur lors de l'ignorance du temps :", error);
   }
 }
 
+// Gestion du pop-up de confirmation
+function showConfirmationPopup() {
+  document.getElementById('confirm-popup').classList.add('active');
+}
+
+function hideConfirmationPopup() {
+  document.getElementById('confirm-popup').classList.remove('active');
+}
+
+// Gestionnaire d'événements pour confirmation
+document.getElementById('ignore-button').addEventListener('click', showConfirmationPopup);
+document.getElementById('confirm-delete-button').addEventListener('click', () => {
+  hideConfirmationPopup();
+  ignoreTime();
+});
+document.getElementById('cancel-delete-button').addEventListener('click', hideConfirmationPopup);
+
 // Initialisation
 window.onload = () => {
-  loadLeaderboard(); // Charger les données au chargement
-  checkPending(); // Vérifier l'état des données en attente
-
-  // Vérifier les temps en attente toutes les 5 secondes
+  loadLeaderboard();
+  checkPending();
   setInterval(checkPending, 5000);
-
-  // Bouton Ignorer
-  document.getElementById('ignore-button').addEventListener('click', ignoreTime);
 };

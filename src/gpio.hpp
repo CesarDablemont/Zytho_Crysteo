@@ -3,7 +3,10 @@
 
 #include <Arduino.h>
 
-enum class Button { None = -1, TEST1 = 36, TEST2 = 39, TEST3 = 34, TEST4 = 35, TEST5 = 32, TEST6 = 33 };
+// enum class Button { None = -1, CupSensor = 18, ArmSensor = 16 };  // ESP s2 mini
+// enum class Led { Red = 33, Green = 35, Blue = 37 };
+
+enum class Button { None = -1, CupSensor = 36, ArmSensor = 33 };  // ESP dev module
 enum class Led { Red = 25, Green = 26, Blue = 27 };
 
 class Gpio {
@@ -12,10 +15,11 @@ class Gpio {
 
   void Setup();
 
-  Button IsTouch();
-  void WaitForTouch();
-  void WaitForTouchAndRelease();
-  void WaitForRelease();
+  // USELESS (car interrupt)
+  // Button IsTouch();
+  // void WaitForTouch();
+  // void WaitForTouchAndRelease();
+  // void WaitForRelease();
 
   static volatile bool interruptsEnabled;
   static volatile bool interruptsCupRissing;

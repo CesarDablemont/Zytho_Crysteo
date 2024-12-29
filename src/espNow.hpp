@@ -3,9 +3,10 @@
 
 #include <WiFi.h>
 #include <esp_now.h>
+#include <esp_wifi.h>
 
-#include "utils.hpp"
 #include "portal.hpp"
+#include "utils.hpp"
 
 extern Portal portal;
 
@@ -15,17 +16,16 @@ class EspNow {
 
   void Setup();
   void sendDiscovery(const char* role);
+  void sendTime(const float time);
   void addSlave(const uint8_t* mac);
+  void addMasterPeer();
 
   static void onReceive(const uint8_t* mac, const uint8_t* incomingData, int len);
   static void processMessages(void* parameter);
 
-  // Liste des adresses MAC des Slaves (pour le Master)
-  uint8_t slaveMacAddresses[MAX_SLAVES][6] = {};
+  uint8_t slaveMacAddresses[MAX_SLAVES][6] = {};  // Liste des adresses MAC des Slaves (pour le Master)
   int slaveCount = 0;
-
-  // Adresse du Master pour le Slave
-  uint8_t masterMacAddress[6] = {};
+  uint8_t masterMacAddress[6] = {};  // Adresse du Master pour le Slave
 
   QueueHandle_t messageQueue = nullptr;  // File de messages
 

@@ -2,7 +2,7 @@
 #define DEBUGGER_HPP
 
 // Niveau de débogage global (modifiez ici pour changer le niveau)
-#define DEBUG_LEVEL 3
+#define DEBUG_LEVEL 4
 
 // Niveaux de débogage
 #define DEBUG_LEVEL_NONE 0   // Aucun message

@@ -18,12 +18,22 @@
         <button type="button" id="ignore-button" class="ignore-btn">Ignorer</button>
       </form>
     </div>
+
+    <div id="confirm-popup">
+      <div class="confirm-box">
+        <h3>Confirmer la suppression</h3>
+        <p>Êtes-vous sûr de vouloir ignorer ce temps ?</p>
+        <button id="confirm-delete-button">Oui</button>
+        <button id="cancel-delete-button">Annuler</button>
+      </div>
+    </div>
+
     <h1>Leaderboard</h1>
     <table>
       <thead>
         <tr>
           <th>Pseudo</th>
-          <th>Temps</th>
+          <th>Temps (s)</th>
         </tr>
       </thead>
       <tbody id="leaderboard"></tbody>

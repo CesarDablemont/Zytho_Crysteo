@@ -3,7 +3,7 @@
 #include "debugger.hpp"
 
 volatile bool Gpio::interruptsEnabled = false;
-volatile bool Gpio::interruptsCupRissing = false;
+volatile bool Gpio::interruptsCupRissing = true;
 
 volatile unsigned long lastDebounceTime = 0;
 const unsigned long debounceDelay = 100;
@@ -13,18 +13,14 @@ Gpio::Gpio() {}
 
 // Init
 void Gpio::Setup() {
-  pinMode((int)Button::TEST1, INPUT_PULLUP);  // Bouton 1 avec pull-up interne
-  pinMode((int)Button::TEST2, INPUT_PULLUP);  // Bouton 2 avec pull-up interne
-  pinMode((int)Button::TEST3, INPUT_PULLUP);  // Bouton 3 avec pull-up interne
-  pinMode((int)Button::TEST4, INPUT_PULLUP);  // Bouton 4 avec pull-up interne
-  pinMode((int)Button::TEST5, INPUT_PULLUP);  // Bouton 5 avec pull-up interne
-  pinMode((int)Button::TEST6, INPUT_PULLUP);  // Bouton 6 avec pull-up interne
+  pinMode((int)Button::CupSensor, INPUT_PULLUP);
+  pinMode((int)Button::ArmSensor, INPUT_PULLUP);
 
-  pinMode((int)Led::Red, OUTPUT);    // Bouton 6 avec pull-up interne
-  pinMode((int)Led::Green, OUTPUT);  // Bouton 6 avec pull-up interne
-  pinMode((int)Led::Blue, OUTPUT);   // Bouton 6 avec pull-up interne
+  pinMode((int)Led::Red, OUTPUT);
+  pinMode((int)Led::Green, OUTPUT);
+  pinMode((int)Led::Blue, OUTPUT);
 
-  attachInterrupt(digitalPinToInterrupt((int)Button::TEST6), toggleInterrupts, RISING);
+  attachInterrupt(digitalPinToInterrupt((int)Button::ArmSensor), toggleInterrupts, RISING);  // Quand on appuis
 }
 
 void IRAM_ATTR Gpio::toggleInterrupts() {
@@ -37,21 +33,19 @@ void IRAM_ATTR Gpio::toggleInterrupts() {
 
 // Gestion de l'interruption pour TEST1
 void IRAM_ATTR Gpio::handleButtonPress() {
-  if (!interruptsEnabled) return; // normalement meme pas besoin car on a detacher l'interutption
+  if (!interruptsEnabled) return;  // normalement meme pas besoin car on a detacher l'interutption
 
-  if (digitalRead((int)Button::TEST1) == LOW)
+  if (digitalRead((int)Button::CupSensor) == HIGH)
     interruptsCupRissing = true;  // interruptsCupRissing
   else
     interruptsCupRissing = false;  // interruptsCupFalling
 }
 
+// USELESS (car interrupt)
+/*
 Button Gpio::IsTouch() {
-  if (digitalRead((int)Button::TEST1) == HIGH) return Button::TEST1;
-  if (digitalRead((int)Button::TEST2) == HIGH) return Button::TEST2;
-  if (digitalRead((int)Button::TEST3) == HIGH) return Button::TEST3;
-  if (digitalRead((int)Button::TEST4) == HIGH) return Button::TEST4;
-  if (digitalRead((int)Button::TEST5) == HIGH) return Button::TEST5;
-  if (digitalRead((int)Button::TEST6) == HIGH) return Button::TEST6;
+  if (digitalRead((int)Button::CupSensor) == HIGH) return Button::CupSensor;
+  if (digitalRead((int)Button::ArmSensor) == HIGH) return Button::ArmSensor;
   return Button::None;
 }
 
@@ -67,3 +61,4 @@ void Gpio::WaitForTouchAndRelease() {
 void Gpio::WaitForRelease() {
   while (IsTouch() != Button::None) { delay(10); }
 }
+*/
