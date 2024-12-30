@@ -6,7 +6,7 @@ DNSServer dnsServer;
 Sd sd;
 
 // File d'attente partagée (statique)
-std::queue<String> Portal::pendingQueue;
+std::queue<PendingTime> Portal::pendingQueue;
 
 Portal::Portal() {}
 
@@ -97,9 +97,11 @@ void Portal::Setup() {
 }
 
 // Ajout d'un temps en attente
-void Portal::ajouterTempsEnAttente(float temps) {
-  String tempsStr = String(temps, 3);
-  pendingQueue.push(tempsStr);
+void Portal::ajouterTempsEnAttente(float temps, int slaveNumber) {
+  PendingTime nouvelElement = {temps, slaveNumber};
+  pendingQueue.push(nouvelElement);
+
+  DEBUG_PORTAL("Ajouté à la file : Temps = %.3f, Slave = %d\n", temps, slaveNumber);
 }
 
 // Route : afficher l'index
@@ -161,8 +163,13 @@ void Portal::servirFichierCSV() {
 // Route : gérer les données en attente
 void Portal::gererPending() {
   if (!pendingQueue.empty()) {
-    String pendingTime = pendingQueue.front();
-    server.send(200, "application/json", "{\"status\":\"pending\",\"time\":\"" + pendingTime + "\"}");
+    PendingTime pendingTime = pendingQueue.front();
+
+    String timeStr = String(pendingTime.time, 3);        // Convertit float en String avec 3 décimales
+    String sourceStr = String(pendingTime.slaveNumber);  // Convertit int en String
+
+    server.send(200, "application/json",
+                "{\"status\":\"pending\",\"time\":\"" + timeStr + "\", \"source\":\"" + sourceStr + "\"}");
   } else {
     server.send(200, "application/json", "{\"status\":\"none\"}");
   }
@@ -179,11 +186,11 @@ void Portal::soumettrePseudo() {
       return;
     }
 
-    String pendingTime = pendingQueue.front();
+    PendingTime pendingTime = pendingQueue.front();
     pendingQueue.pop();
 
     // Ajout au CSV
-    sd.ajouterEntreeCSV(pseudo.c_str(), pendingTime.toFloat());
+    sd.ajouterEntreeCSV(pseudo.c_str(), pendingTime.time);
     sd.trierLeaderboard();
 
     // Redirection

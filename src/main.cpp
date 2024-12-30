@@ -38,15 +38,13 @@ void loop() {
 
     if (Gpio::interruptsEnabled) {
       if (digitalRead((int)Led::Red) == HIGH) {  // si on change d'etat
-        digitalWrite((int)Led::Red, LOW);
-        digitalWrite((int)Led::Green, HIGH);
+        gpio.timerReady();
         attachInterrupt(digitalPinToInterrupt((int)Button::CupSensor), Gpio::handleButtonPress, CHANGE);
         DEBUG_GPIO("Interruptions activées pour BUTTON_PIN1.");
       }
     } else {
       if (digitalRead((int)Led::Red) == LOW) {  // si on change d'etat
-        digitalWrite((int)Led::Red, HIGH);
-        digitalWrite((int)Led::Green, LOW);
+        gpio.TimerDisabled();
         detachInterrupt(digitalPinToInterrupt((int)Button::CupSensor));
         DEBUG_GPIO("Interruptions désactivées pour BUTTON_PIN1.");
       }
@@ -58,6 +56,7 @@ void loop() {
     if (Gpio::interruptsEnabled && !Gpio::interruptsCupRissing) {
       if (timerCupStart == 0) {  // Démarre le chronomètre uniquement si ce n'est pas déjà fait
         timerCupStart = millis();
+        gpio.TimerRunning();
         DEBUG_INFO("Timer start");
       }
     }
@@ -68,7 +67,7 @@ void loop() {
       unsigned long delta = millis() - timerCupStart;
       if (isMaster) {
         DEBUG_INFO("Nouveau temps : %.3f", delta / 1000.0);
-        portal.ajouterTempsEnAttente(delta / 1000.0);  // Convertit delta en secondes (float)
+        portal.ajouterTempsEnAttente(delta / 1000.0, -1);  // Convertit delta en secondes (float)
       } else {
         // send to master
         espNow.sendTime(delta / 1000.0);

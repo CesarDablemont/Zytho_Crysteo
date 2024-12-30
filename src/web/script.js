@@ -1,4 +1,20 @@
 // Vérification périodique des temps en attente
+// async function checkPending() {
+//   try {
+//     const response = await fetch('/pending');
+//     const data = await response.json();
+//     const popup = document.getElementById('popup');
+
+//     if (data.status === 'pending') {
+//       popup.classList.add('active');
+//       document.getElementById('time').textContent = data.time;
+//     } else {
+//       popup.classList.remove('active');
+//     }
+//   } catch (error) {
+//     console.error('Erreur lors de la vérification des temps en attente :', error);
+//   }
+// }
 async function checkPending() {
   try {
     const response = await fetch('/pending');
@@ -7,7 +23,13 @@ async function checkPending() {
 
     if (data.status === 'pending') {
       popup.classList.add('active');
+
+      // Met à jour le temps
       document.getElementById('time').textContent = data.time;
+
+      // Met à jour la source dynamiquement
+      const sourceText = data.source == -1 ? 'Temps du maitre' : `Temps de chinois #${data.source}`;
+      document.getElementById('source').textContent = sourceText;
     } else {
       popup.classList.remove('active');
     }
@@ -78,5 +100,5 @@ document.getElementById('cancel-delete-button').addEventListener('click', hideCo
 window.onload = () => {
   loadLeaderboard();
   checkPending();
-  setInterval(checkPending, 5000);
+  setInterval(checkPending, 1000);
 };

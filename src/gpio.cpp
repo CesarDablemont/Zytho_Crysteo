@@ -20,7 +20,26 @@ void Gpio::Setup() {
   pinMode((int)Led::Green, OUTPUT);
   pinMode((int)Led::Blue, OUTPUT);
 
+  digitalWrite((int)Led::Red, LOW);
+  digitalWrite((int)Led::Green, LOW);
+  digitalWrite((int)Led::Blue, LOW);
+
   attachInterrupt(digitalPinToInterrupt((int)Button::ArmSensor), toggleInterrupts, RISING);  // Quand on appuis
+}
+
+void Gpio::timerReady() {
+  digitalWrite((int)Led::Red, LOW);
+  digitalWrite((int)Led::Green, HIGH);
+}
+
+void Gpio::TimerRunning() {
+  digitalWrite((int)Led::Green, LOW);
+  digitalWrite((int)Led::Blue, HIGH);
+}
+
+void Gpio::TimerDisabled() {
+  digitalWrite((int)Led::Blue, LOW);
+  digitalWrite((int)Led::Red, HIGH);
 }
 
 void IRAM_ATTR Gpio::toggleInterrupts() {

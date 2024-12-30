@@ -44,6 +44,11 @@ extern bool roleLocked;
 #define DNS_PORT 53
 #define DNS_NAME "zytho"
 
+struct PendingTime {
+  float time;       // Temps en secondes
+  int slaveNumber;  // Numéro de l'esclave
+};
+
 // ----------------------------------------------------------------------
 // Pin CS pour la carte SD
 #define CS_PIN 5

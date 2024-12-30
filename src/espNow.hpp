@@ -17,6 +17,8 @@ class EspNow {
   void Setup();
   void sendDiscovery(const char* role);
   void sendTime(const float time);
+
+  int findSlave(const uint8_t* mac);
   void addSlave(const uint8_t* mac);
   void addMasterPeer();
 

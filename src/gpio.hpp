@@ -21,6 +21,10 @@ class Gpio {
   // void WaitForTouchAndRelease();
   // void WaitForRelease();
 
+  void timerReady();
+  void TimerRunning();
+  void TimerDisabled();
+
   static volatile bool interruptsEnabled;
   static volatile bool interruptsCupRissing;
 

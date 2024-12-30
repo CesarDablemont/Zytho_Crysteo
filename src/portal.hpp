@@ -21,10 +21,10 @@ class Portal {
   Portal();
 
   void Setup();
-  void ajouterTempsEnAttente(float temps);
+  void ajouterTempsEnAttente(float temps, int slaveNumber);
 
  private:
-  static std::queue<String> pendingQueue;  // File d'attente statique
+  static std::queue<PendingTime> pendingQueue;  // File d'attente statique
 
   // Méthodes de gestion des routes (doivent être statiques pour fonctionner avec `server.on`)
   static void afficherPageIndex();

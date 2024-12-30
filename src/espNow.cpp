@@ -95,12 +95,39 @@ void EspNow::sendTime(float timeValue) {
   }
 }
 
+int EspNow::findSlave(const uint8_t* mac) {
+  for (int i = 0; i < slaveCount; i++) {
+    if (memcmp(slaveMacAddresses[i], mac, 6) == 0) {
+      return i;  // L'adresse MAC existe déjà, retourne l'index.
+    }
+  }
+  return -1;  // L'adresse MAC n'existe pas, retourne -1.
+}
+
 // Ajout d'un Slave
 void EspNow::addSlave(const uint8_t* mac) {
   if (slaveCount < MAX_SLAVES) {
-    memcpy(slaveMacAddresses[slaveCount], mac, 6);
-    slaveCount++;
-    DEBUG_INFO("Slave ajouté avec succès.");
+    if (findSlave(mac) == -1) {
+      memcpy(slaveMacAddresses[slaveCount], mac, 6);
+      slaveCount++;
+      DEBUG_INFO("Slave ajouté avec succès.");
+
+#if DEBUG_LEVEL >= DEBUG_LEVEL_DEBUG
+      // Affichage des données brutes reçues pour déboguer
+      Serial.println("[DEBUG] [ESP_NOW] Lites des slaves : ");
+      for (int i = 0; i < slaveCount; i++) {
+        Serial.printf("[DEBUG] [ESP_NOW] Slaves #%d : ", i);
+        for (int j = 0; j < 6; j++) {
+          Serial.printf("%02X ", slaveMacAddresses[i][j]);  // Affiche les données sous forme hexadécimale
+        }
+        Serial.println();
+      }
+#endif
+
+    } else {
+      DEBUG_WARN("Adresse MAC déjà présente dans la liste des Slaves. Ignorée.");
+    }
+
   } else {
     DEBUG_ERROR("Liste des Slaves pleine.");
   }
@@ -158,14 +185,11 @@ void EspNow::processMessages(void* parameter) {
           strncpy(discoveryMsg->role, rawRole, sizeof(discoveryMsg->role) - 1);
           discoveryMsg->role[sizeof(discoveryMsg->role) - 1] = '\0';  // Assurez-vous que la chaîne est bien terminée
 
-          // Affichage du rôle extrait
-          DEBUG_ESP_NOW("Rôle extrait : %s", discoveryMsg->role);
-
           // Vérification de la validité du rôle
           if (strlen(discoveryMsg->role) < 1) {
             DEBUG_ERROR("Rôle reçu invalide !");
           } else {
-            DEBUG_ESP_NOW("Rôle valide reçu : %s", discoveryMsg->role);
+            DEBUG_ESP_NOW("Rôle reçu : %s", discoveryMsg->role);
           }
 
           // Traitement basé sur le rôle
@@ -197,7 +221,8 @@ void EspNow::processMessages(void* parameter) {
           memcpy(&receivedTime, msg.data, sizeof(float));
 
           DEBUG_INFO("[TIME] Temps reçu : %.3f secondes", receivedTime);
-          portal.ajouterTempsEnAttente(receivedTime);
+          // portal.ajouterTempsEnAttente(receivedTime, findSlave(msg.macAddr));
+          portal.ajouterTempsEnAttente(receivedTime, instance->findSlave(msg.macAddr));
 
 #if DEBUG_LEVEL >= DEBUG_LEVEL_DEBUG
           // Affichage de l'adresse MAC du message TIME
