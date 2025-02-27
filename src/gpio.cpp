@@ -13,20 +13,27 @@ Gpio::Gpio() {}
 
 // Init
 void Gpio::Setup() {
-  pinMode((int)Button::CupSensor, INPUT_PULLUP);
-  pinMode((int)Button::ArmSensor, INPUT_PULLUP);
+  pinMode((int)Button::CupSensor, INPUT_PULLDOWN);
+  pinMode((int)Button::ArmSensor, INPUT_PULLDOWN);
 
   pinMode((int)Led::Red, OUTPUT);
   pinMode((int)Led::Green, OUTPUT);
   pinMode((int)Led::Blue, OUTPUT);
 
+#if ESP_TYPE == 1
   digitalWrite((int)Led::Red, LOW);
   digitalWrite((int)Led::Green, LOW);
   digitalWrite((int)Led::Blue, LOW);
+#else
+  digitalWrite((int)Led::Red, HIGH);
+  digitalWrite((int)Led::Green, HIGH);
+  digitalWrite((int)Led::Blue, HIGH);
+#endif
 
   attachInterrupt(digitalPinToInterrupt((int)Button::ArmSensor), toggleInterrupts, RISING);  // Quand on appuis
 }
 
+#if ESP_TYPE == 1
 void Gpio::timerReady() {
   digitalWrite((int)Led::Red, LOW);
   digitalWrite((int)Led::Green, HIGH);
@@ -41,6 +48,26 @@ void Gpio::TimerDisabled() {
   digitalWrite((int)Led::Blue, LOW);
   digitalWrite((int)Led::Red, HIGH);
 }
+#else
+void Gpio::timerReady() {
+  digitalWrite((int)Led::Red, HIGH);
+  digitalWrite((int)Led::Green, LOW);
+  digitalWrite((int)Led::Blue, HIGH);
+}
+
+void Gpio::TimerRunning() {
+  digitalWrite((int)Led::Red, HIGH);
+  digitalWrite((int)Led::Green, HIGH);
+  digitalWrite((int)Led::Blue, LOW);
+}
+
+void Gpio::TimerDisabled() {
+  digitalWrite((int)Led::Red, LOW);
+  digitalWrite((int)Led::Green, HIGH);
+  digitalWrite((int)Led::Blue, HIGH);
+}
+
+#endif
 
 void IRAM_ATTR Gpio::toggleInterrupts() {
   // unsigned long currentTime = millis();
@@ -59,25 +86,3 @@ void IRAM_ATTR Gpio::handleButtonPress() {
   else
     interruptsCupRissing = false;  // interruptsCupFalling
 }
-
-// USELESS (car interrupt)
-/*
-Button Gpio::IsTouch() {
-  if (digitalRead((int)Button::CupSensor) == HIGH) return Button::CupSensor;
-  if (digitalRead((int)Button::ArmSensor) == HIGH) return Button::ArmSensor;
-  return Button::None;
-}
-
-void Gpio::WaitForTouch() {
-  while (IsTouch() == Button::None) { delay(10); }
-}
-
-void Gpio::WaitForTouchAndRelease() {
-  WaitForTouch();
-  WaitForRelease();
-}
-
-void Gpio::WaitForRelease() {
-  while (IsTouch() != Button::None) { delay(10); }
-}
-*/

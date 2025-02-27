@@ -6,6 +6,11 @@
 
 #include "debugger.hpp"
 
+// 1 = esp32dev module
+// 2 = lolin_s2_mini
+// 3 = esp32 devkit v1
+#define ESP_TYPE 3
+
 // ----------------------------------------------------------------------
 // Communication ESP
 #define DISCOVERY_TIMEOUT 5000

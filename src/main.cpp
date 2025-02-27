@@ -37,13 +37,21 @@ void loop() {
     lastDebounceTime0 = currentTime;
 
     if (Gpio::interruptsEnabled) {
+#if ESP_TYPE == 1
       if (digitalRead((int)Led::Red) == HIGH) {  // si on change d'etat
+#else
+      if (digitalRead((int)Led::Red) == LOW) {  // si on change d'etat
+#endif
         gpio.timerReady();
         attachInterrupt(digitalPinToInterrupt((int)Button::CupSensor), Gpio::handleButtonPress, CHANGE);
         DEBUG_GPIO("Interruptions activées pour BUTTON_PIN1.");
       }
     } else {
+#if ESP_TYPE == 1
       if (digitalRead((int)Led::Red) == LOW) {  // si on change d'etat
+#else
+      if (digitalRead((int)Led::Red) == HIGH) {  // si on change d'etat
+#endif
         gpio.TimerDisabled();
         detachInterrupt(digitalPinToInterrupt((int)Button::CupSensor));
         DEBUG_GPIO("Interruptions désactivées pour BUTTON_PIN1.");
