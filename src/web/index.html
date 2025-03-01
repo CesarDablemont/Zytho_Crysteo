@@ -8,6 +8,7 @@
     <script src="/script.js" defer></script>
   </head>
   <body>
+    <!-- Popup ajout temps -->
     <div id="popup">
       <form action="/submit" method="POST">
         <h2>Nouveau Temps: <span id="time"></span></h2>
@@ -29,6 +30,7 @@
       </form>
     </div>
 
+    <!-- Popup validation ajout temps -->
     <div id="confirm-popup">
       <div class="confirm-box">
         <h3>Confirmer la suppression</h3>
@@ -38,6 +40,42 @@
       </div>
     </div>
 
+    <!-- Popup filtre -->
+    <div id="filter-popup" class="popup">
+      <div class="popup-content">
+        <h3>Filtrer par catégorie</h3>
+        <label><input type="checkbox" class="category-filter" value="25cl" checked /> 25cl</label>
+        <label><input type="checkbox" class="category-filter" value="33cl" checked /> 33cl</label>
+        <label><input type="checkbox" class="category-filter" value="50cl" checked /> 50cl</label>
+        <label><input type="checkbox" class="category-filter" value="autre" checked /> Autre</label>
+        <h3>Trier par</h3>
+        <label><input type="radio" name="sort" value="time-asc" checked /> Temps croissant</label>
+        <label><input type="radio" name="sort" value="time-desc" /> Temps décroissant</label>
+        <label><input type="radio" name="sort" value="category-asc" /> Catégorie croissante</label>
+        <label><input type="radio" name="sort" value="category-desc" /> Catégorie décroissante</label>
+        <button id="apply-filters">Appliquer</button>
+      </div>
+    </div>
+
+    <!-- Page Principale -->
+    <!-- source svg: https://svgbox.net/iconset/hero-outline -->
+    <svg
+      width="28px"
+      height="28px"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      color="#333333"
+      id="filter-icon"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+      ></path>
+    </svg>
     <h1>Leaderboard</h1>
     <table>
       <thead>
