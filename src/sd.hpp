@@ -12,7 +12,7 @@ class Sd {
   Sd() {};
 
   void Setup();
-  void ajouterEntreeCSV(const char* pseudo, float temps);
+  void ajouterEntreeCSV(const char* pseudo, float temps, const char* categorie);
   void trierLeaderboard();
 };
 

@@ -15,6 +15,15 @@
         <label for="pseudo">Pseudo :</label>
         <input type="text" id="pseudo" name="pseudo" required />
         <br /><br />
+        <label for="category">Catégorie :</label>
+        <select id="category" name="category" required>
+          <option value="25cl">25cl</option>
+          <option value="33cl">33cl</option>
+          <option value="50cl">50cl</option>
+          <option value="autre">Autre</option>
+        </select>
+        <input type="number" id="custom-category" name="custom-category" style="display: none" placeholder="cl" />
+        <br /><br />
         <button type="submit" id="valid-button">Valider</button>
         <button type="button" id="ignore-button" class="ignore-btn">Ignorer</button>
       </form>
@@ -35,6 +44,7 @@
         <tr>
           <th>Pseudo</th>
           <th>Temps (s)</th>
+          <th>Catégorie</th>
         </tr>
       </thead>
       <tbody id="leaderboard"></tbody>

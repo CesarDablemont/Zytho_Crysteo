@@ -177,8 +177,9 @@ void Portal::gererPending() {
 
 // Route : soumettre un pseudo
 void Portal::soumettrePseudo() {
-  if (server.hasArg("pseudo") && !pendingQueue.empty()) {
+  if (server.hasArg("pseudo") && server.hasArg("category") && !pendingQueue.empty()) {
     String pseudo = server.arg("pseudo");
+    String category = server.arg("category");
 
     // Validation du pseudo
     if (pseudo.length() < 3 || pseudo.length() > 50) {
@@ -186,18 +187,21 @@ void Portal::soumettrePseudo() {
       return;
     }
 
+    // Si la catégorie est "autre", récupérer la valeur personnalisée
+    if (category == "autre" && server.hasArg("custom-category")) { category = server.arg("custom-category") + "cl"; }
+
     PendingTime pendingTime = pendingQueue.front();
     pendingQueue.pop();
 
     // Ajout au CSV
-    sd.ajouterEntreeCSV(pseudo.c_str(), pendingTime.time);
+    sd.ajouterEntreeCSV(pseudo.c_str(), pendingTime.time, category.c_str());
     sd.trierLeaderboard();
 
     // Redirection
     server.sendHeader("Location", "/", true);
     server.send(302, "text/plain", "Redirection vers le leaderboard");
   } else {
-    server.send(400, "text/plain", "Pseudo manquant ou pas de temps en attente");
+    server.send(400, "text/plain", "Pseudo ou catégorie manquant ou pas de temps en attente");
   }
 }
 

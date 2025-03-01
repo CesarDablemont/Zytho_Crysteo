@@ -1,20 +1,4 @@
 // Vérification périodique des temps en attente
-// async function checkPending() {
-//   try {
-//     const response = await fetch('/pending');
-//     const data = await response.json();
-//     const popup = document.getElementById('popup');
-
-//     if (data.status === 'pending') {
-//       popup.classList.add('active');
-//       document.getElementById('time').textContent = data.time;
-//     } else {
-//       popup.classList.remove('active');
-//     }
-//   } catch (error) {
-//     console.error('Erreur lors de la vérification des temps en attente :', error);
-//   }
-// }
 async function checkPending() {
   try {
     const response = await fetch('/pending');
@@ -49,10 +33,10 @@ async function loadLeaderboard() {
     tbody.innerHTML = '';
 
     rows.forEach(row => {
-      const [pseudo, time] = row.split(',');
-      if (pseudo && time) {
+      const [pseudo, time, category] = row.split(',');
+      if (pseudo && time && category) {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${pseudo}</td><td>${time}</td>`;
+        tr.innerHTML = `<td>${pseudo}</td><td>${time}</td><td>${category}</td>`;
         tbody.appendChild(tr);
       }
     });
@@ -90,11 +74,24 @@ function hideConfirmationPopup() {
 
 // Gestionnaire d'événements pour confirmation
 document.getElementById('ignore-button').addEventListener('click', showConfirmationPopup);
+
 document.getElementById('confirm-delete-button').addEventListener('click', () => {
   hideConfirmationPopup();
   ignoreTime();
 });
+
 document.getElementById('cancel-delete-button').addEventListener('click', hideConfirmationPopup);
+
+document.getElementById('category').addEventListener('change', function () {
+  const customCategoryInput = document.getElementById('custom-category');
+  if (this.value === 'autre') {
+    customCategoryInput.style.display = 'block';
+    customCategoryInput.required = true;
+  } else {
+    customCategoryInput.style.display = 'none';
+    customCategoryInput.required = false;
+  }
+});
 
 // Initialisation
 window.onload = () => {
